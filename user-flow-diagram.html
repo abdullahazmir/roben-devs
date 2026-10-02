@@ -1,0 +1,412 @@
+<!doctype html>
+<title>Turf Booking Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f7f2;
+    --surface: #ffffff;
+    --line: #d9e0d6;
+    --ink: #192019;
+    --ink-muted: #5c6b60;
+    --eyebrow: #7c8a7f;
+
+    --pitch: #2e6f4d;
+    --pitch-soft: #e1efe6;
+    --red: #ab382c;
+    --red-soft: #f7e3e0;
+    --amber: #b9800f;
+    --amber-soft: #f6ecd4;
+    --blue: #335a7a;
+    --blue-soft: #e2eaf1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10180f;
+      --surface: #182019;
+      --line: #2d382f;
+      --ink: #eaf0e8;
+      --ink-muted: #94a397;
+      --eyebrow: #7e9284;
+
+      --pitch: #5cae82;
+      --pitch-soft: #1c3426;
+      --red: #e38073;
+      --red-soft: #3a211d;
+      --amber: #e0b352;
+      --amber-soft: #3a2f16;
+      --blue: #8fb3d6;
+      --blue-soft: #1e2d3b;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #10180f;
+    --surface: #182019;
+    --line: #2d382f;
+    --ink: #eaf0e8;
+    --ink-muted: #94a397;
+    --eyebrow: #7e9284;
+
+    --pitch: #5cae82;
+    --pitch-soft: #1c3426;
+    --red: #e38073;
+    --red-soft: #3a211d;
+    --amber: #e0b352;
+    --amber-soft: #3a2f16;
+    --blue: #8fb3d6;
+    --blue-soft: #1e2d3b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Work Sans", system-ui, -apple-system, sans-serif;
+    padding-inline: max(20px, env(safe-area-inset-left, 0px));
+    padding-block: 48px;
+  }
+
+  main {
+    max-width: 1180px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+  }
+
+  .eyebrow {
+    font-family: "Work Sans", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--eyebrow);
+  }
+
+  h1 {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    line-height: 0.98;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: 0.002em;
+  }
+
+  .dek {
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .diagram-frame {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 18px;
+    overflow-x: auto;
+  }
+
+  .diagram-frame svg {
+    display: block;
+    width: 100%;
+    min-width: 880px;
+    height: auto;
+  }
+
+  svg text { font-family: "Work Sans", sans-serif; fill: var(--ink); }
+  .node-label { font-size: 15px; font-weight: 600; }
+  .edge-label { font-size: 12.5px; fill: var(--ink-muted); font-weight: 500; }
+  .lane-label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; fill: var(--eyebrow); }
+  .diamond-label { font-size: 13px; font-weight: 600; }
+
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--ink-muted);
+    max-width: 68ch;
+    line-height: 1.5;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 0.82rem;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 13px; height: 13px; border-radius: 4px; flex: none; }
+
+  section.notes {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  h2 {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 0;
+  }
+
+  .note-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .note-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--card-accent, var(--ink-muted));
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .note-card .tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--card-accent, var(--ink-muted));
+  }
+
+  .note-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  footer {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+  }
+
+  @media (max-width: 480px) {
+    body { padding-block: 32px; }
+  }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Turf Ground Booking System — Product Spec</div>
+    <h1>Customer Booking User Flow</h1>
+    <p class="dek">Primary path plus the three places the flow branches: a slot taken from under the customer, a cancellation, and a technical failure mid-submit. Read left to right along the top lane, then down into each outcome.</p>
+    <div class="meta-row">
+      <span>v1 scope</span>
+      <span>Single turf · guest booking · fixed-duration slots</span>
+    </div>
+  </header>
+
+  <figure>
+    <div class="diagram-frame">
+      <svg viewBox="0 0 1600 500" role="img" aria-label="Flowchart: View Turf, Select Date, View Slots, Select Slot, Enter Details, Confirm Booking, then Booking Confirmed on success. From Confirm Booking two failure branches lead to Slot Taken (red, loops back to View Slots) and Technical Error (amber, loops back to Confirm Booking). A separate Cancellation Flow lane shows Existing Booking, Tap Cancel, a Confirm-cancel decision, leading to Booking Cancelled and Slot Released, or back to Existing Booking.">
+        <defs>
+          <marker id="arrow-ink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)"></path>
+          </marker>
+          <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--pitch)"></path>
+          </marker>
+          <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--red)"></path>
+          </marker>
+          <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"></path>
+          </marker>
+          <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--blue)"></path>
+          </marker>
+        </defs>
+
+        <text x="20" y="22" class="lane-label">BOOKING FLOW</text>
+
+        <!-- Row A: main spine -->
+        <g>
+          <rect x="20" y="40" width="170" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="105" y="75" class="node-label" text-anchor="middle" dominant-baseline="middle">View Turf</text>
+        </g>
+
+        <line x1="190" y1="70" x2="238" y2="70" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <g>
+          <rect x="240" y="40" width="170" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="325" y="75" class="node-label" text-anchor="middle" dominant-baseline="middle">Select Date</text>
+        </g>
+
+        <line x1="410" y1="70" x2="458" y2="70" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <g>
+          <rect x="460" y="40" width="170" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="545" y="75" class="node-label" text-anchor="middle" dominant-baseline="middle">View Slots</text>
+        </g>
+
+        <line x1="630" y1="70" x2="678" y2="70" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <g>
+          <rect x="680" y="40" width="170" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="765" y="75" class="node-label" text-anchor="middle" dominant-baseline="middle">Select Slot</text>
+        </g>
+
+        <line x1="850" y1="70" x2="898" y2="70" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <g>
+          <rect x="900" y="40" width="170" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="985" y="75" class="node-label" text-anchor="middle" dominant-baseline="middle">Enter Details</text>
+        </g>
+
+        <line x1="1070" y1="70" x2="1118" y2="70" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <g>
+          <rect x="1120" y="40" width="190" height="60" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"></rect>
+          <text x="1215" y="75" class="node-label" text-anchor="middle" dominant-baseline="middle">Confirm Booking</text>
+        </g>
+
+        <!-- success: straight on to Booking Confirmed -->
+        <line x1="1310" y1="70" x2="1358" y2="70" stroke="var(--pitch)" stroke-width="1.8" marker-end="url(#arrow-green)"></line>
+        <text x="1334" y="56" class="edge-label" text-anchor="middle">slot still free</text>
+
+        <g>
+          <rect x="1360" y="36" width="210" height="68" rx="10" fill="var(--pitch-soft)" stroke="var(--pitch)" stroke-width="1.8"></rect>
+          <path d="M1382 70 l8 9 l14 -16" fill="none" stroke="var(--pitch)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          <text x="1424" y="75" class="node-label" text-anchor="start" dominant-baseline="middle" fill="var(--pitch)">Booking Confirmed</text>
+        </g>
+
+        <!-- branch: slot taken -->
+        <path d="M1170 100 C1100 150, 1040 160, 1005 228" fill="none" stroke="var(--red)" stroke-width="1.7" marker-end="url(#arrow-red)"></path>
+        <text x="1060" y="150" class="edge-label" text-anchor="middle" fill="var(--red)">slot just taken</text>
+
+        <g>
+          <rect x="900" y="230" width="210" height="62" rx="10" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.6"></rect>
+          <rect x="918" y="251" width="12" height="17" rx="2.5" fill="var(--red)"></rect>
+          <text x="940" y="262" class="node-label" text-anchor="start" fill="var(--red)">Slot Taken</text>
+          <text x="940" y="279" class="edge-label" text-anchor="start" fill="var(--red)">booking blocked</text>
+        </g>
+
+        <!-- loop back: slot taken -> View Slots -->
+        <path d="M900 250 C 760 310, 620 260, 548 102" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="1 6" stroke-linecap="round" marker-end="url(#arrow-red)"></path>
+        <text x="700" y="255" class="edge-label" text-anchor="middle" fill="var(--red)">customer re-selects a slot</text>
+
+        <!-- branch: technical error -->
+        <path d="M1260 100 C1270 150, 1272 170, 1270 228" fill="none" stroke="var(--amber)" stroke-width="1.7" marker-end="url(#arrow-amber)"></path>
+        <text x="1310" y="160" class="edge-label" text-anchor="middle" fill="var(--amber)">network / server error</text>
+
+        <g>
+          <rect x="1170" y="230" width="210" height="62" rx="10" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="1.6"></rect>
+          <rect x="1188" y="251" width="12" height="17" rx="2.5" fill="var(--amber)"></rect>
+          <text x="1210" y="262" class="node-label" text-anchor="start" fill="var(--amber)">Technical Error</text>
+          <text x="1210" y="279" class="edge-label" text-anchor="start" fill="var(--amber)">submit failed</text>
+        </g>
+
+        <!-- loop back: technical error -> Confirm Booking -->
+        <path d="M1380 255 C 1460 220, 1460 130, 1318 85" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="1 6" stroke-linecap="round" marker-end="url(#arrow-amber)"></path>
+        <text x="1460" y="175" class="edge-label" text-anchor="middle" fill="var(--amber)" transform="rotate(90 1460 175)">retry — details kept</text>
+
+        <!-- Cancellation lane -->
+        <text x="20" y="372" class="lane-label">CANCELLATION FLOW</text>
+
+        <g>
+          <rect x="20" y="390" width="190" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="115" y="425" class="node-label" text-anchor="middle" dominant-baseline="middle">Existing Booking</text>
+        </g>
+
+        <line x1="210" y1="420" x2="258" y2="420" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <g>
+          <rect x="260" y="390" width="150" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="335" y="425" class="node-label" text-anchor="middle" dominant-baseline="middle">Tap Cancel</text>
+        </g>
+
+        <line x1="410" y1="420" x2="452" y2="420" stroke="var(--ink-muted)" stroke-width="1.6" marker-end="url(#arrow-ink)"></line>
+
+        <!-- diamond -->
+        <polygon points="520,384 590,420 520,456 450,420" fill="var(--surface)" stroke="var(--ink-muted)" stroke-width="1.6"></polygon>
+        <text x="520" y="415" class="diamond-label" text-anchor="middle">Confirm</text>
+        <text x="520" y="430" class="diamond-label" text-anchor="middle">cancel?</text>
+
+        <line x1="590" y1="420" x2="638" y2="420" stroke="var(--blue)" stroke-width="1.7" marker-end="url(#arrow-blue)"></line>
+        <text x="614" y="407" class="edge-label" text-anchor="middle" fill="var(--blue)">yes</text>
+
+        <g>
+          <rect x="640" y="388" width="260" height="64" rx="10" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.6"></rect>
+          <text x="660" y="412" class="node-label" text-anchor="start" fill="var(--blue)">Booking Cancelled</text>
+          <text x="660" y="430" class="edge-label" text-anchor="start" fill="var(--blue)">slot released back to pool</text>
+        </g>
+
+        <path d="M520 456 C 480 500, 300 500, 120 452" fill="none" stroke="var(--ink-muted)" stroke-width="1.5" stroke-dasharray="1 6" marker-end="url(#arrow-ink)"></path>
+        <text x="320" y="494" class="edge-label" text-anchor="middle">no — keep booking</text>
+      </svg>
+    </div>
+    <figcaption>Outcome colors follow a match-day convention: green is a goal (booking confirmed), a red card is a hard stop (slot already gone), a yellow card is a stoppage play resumes from (technical error, retry), and blue is a substitution (cancellation — a neutral swap, not a fault).</figcaption>
+  </figure>
+
+  <div class="legend">
+    <div class="legend-item"><span class="swatch" style="background:var(--pitch)"></span>Success</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--red)"></span>Blocked (slot taken)</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--amber)"></span>Retry (technical error)</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--blue)"></span>Cancellation</div>
+  </div>
+
+  <section class="notes">
+    <h2>Handoff Notes</h2>
+    <div class="note-grid">
+      <div class="note-card" style="--card-accent: var(--red)">
+        <span class="tag">Slot Conflict</span>
+        <p>The slot-free check must run again at submit time, not just when the customer first tapped it — two people can both be looking at an open slot. Only one submit may win; the other sees "slot no longer available" immediately, not a generic error.</p>
+      </div>
+      <div class="note-card" style="--card-accent: var(--amber)">
+        <span class="tag">Technical Error</span>
+        <p>A failed submit must never hold the slot — no "ghost booking." The customer's entered name and phone number stay filled in so retrying doesn't mean starting over.</p>
+      </div>
+      <div class="note-card" style="--card-accent: var(--blue)">
+        <span class="tag">Cancellation</span>
+        <p>Cancelling asks for confirmation once, then releases the slot immediately back to the available pool. The booking record itself is kept (status: cancelled) for the owner's history, not deleted.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Turf Ground Booking System — PM assignment. Companion to the Requirement Analysis doc and the Jira/QA sheet.</footer>
+</main>
