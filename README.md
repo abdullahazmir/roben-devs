@@ -13,6 +13,6 @@ Product Management deliverables for the Turf Ground Booking System practical ass
 
 - Requirement Analysis & User Flow (Google Doc): https://docs.google.com/document/d/11bIZqF7Dpvru5HxPIJw_YE5-Rh8u1OwUD9d2jrYbwjE/edit
 - Jira Tickets & QA Test Cases (Google Sheet): https://docs.google.com/spreadsheets/d/1JTE6i59Z28fsnauHSrZWsMZRBRpw-HL8GqyQiQxEgcA/edit
-- Loom video script (Google Doc): https://docs.google.com/document/d/1wdkWQ-RVAVa9TaevcwWtS_cz4tcHo0kSHizFwzmyqDQ/edit
+- Loom video script, trimmed for conversational delivery (Google Doc): https://docs.google.com/document/d/1QMh9IN88v8EK6qICvltLsPTfeCqwQ3mO7bLVZLdgb9k/edit
 - User flow diagram (published): https://claude.ai/artifact/7ZWUoy9ZfRtx4UvfX28dKZ
 - Loom video walkthrough: _link pending — record from the script above_
